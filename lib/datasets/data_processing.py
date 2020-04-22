@@ -33,7 +33,7 @@ def build_net_input(roidb):
 
 def img_preprocessing(img, flipped=False):
     """
-    Image preprocessing: flip (optional), subtract mean, scale.
+    Image preprocessing: flip (optional), normalize, scale.
 
     Args:
         img (np.ndarray[H, W, C]): Origin image in BGR order.
@@ -46,8 +46,9 @@ def img_preprocessing(img, flipped=False):
     if flipped:
         img = img[:, ::-1, :]
 
-    processed_img = img.astype(np.float32)
-    processed_img -= cfg.PIXEL_MEANS
+    # Normalization with ImageNet means and stds
+    processed_img = (img - cfg.PIXEL_MEANS) / cfg.PIXEL_STDS
+    processed_img = processed_img.astype(np.float32)
 
     img_size_min = np.min(processed_img.shape[0:2])
     img_size_max = np.max(processed_img.shape[0:2])

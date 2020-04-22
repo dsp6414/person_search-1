@@ -90,10 +90,9 @@ cfg.TEST.RPN_MIN_SIZE = 16
 cfg.SCALE = 600
 # Max pixel size of the longest side of a scaled input image
 cfg.MAX_SIZE = 1000
-# Pixel mean values (BGR order) as a (1, 1, 3) array
-# We use the same pixel mean for all networks even though it's not exactly what
-# they were trained with
-cfg.PIXEL_MEANS = np.array([[[102.9801, 115.9465, 122.7717]]])
+# ImageNet pixel means and stds (BGR order)
+cfg.PIXEL_MEANS = np.array([[[0.485, 0.456, 0.406]]])
+cfg.PIXEL_STDS = np.array([[[0.229, 0.224, 0.225]]])
 # For reproducibility
 cfg.RNG_SEED = 3
 # Root directory of project

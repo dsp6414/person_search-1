@@ -1,11 +1,10 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from torchvision.models import resnet50
 from torchvision.ops import RoIPool, nms
 
 from datasets.data_processing import img_preprocessing
-from models.backbone import Backbone
-from models.head import Head
 from oim.labeled_matching_layer import LabeledMatchingLayer
 from oim.unlabeled_matching_layer import UnlabeledMatchingLayer
 from rpn.proposal_target_layer import ProposalTargetLayer
@@ -27,8 +26,23 @@ class Network(nn.Module):
         super(Network, self).__init__()
         rpn_depth = 1024  # Depth of the feature map fed into RPN
         num_classes = 2  # Background and foreground
-        self.backbone = Backbone()
-        self.head = Head()
+
+        resnet = resnet50(pretrained=True)
+        del resnet.fc
+        self.backbone = nn.Sequential(
+            resnet.conv1,
+            resnet.bn1,
+            resnet.relu,
+            resnet.maxpool,
+            resnet.layer1,
+            resnet.layer2,
+            resnet.layer3[0],
+            resnet.layer3[1],
+            resnet.layer3[2],
+        )
+        self.head = nn.Sequential(
+            resnet.layer3[3], resnet.layer3[4], resnet.layer3[5], resnet.layer4, resnet.avgpool
+        )
         self.rpn = RPN(rpn_depth)
         self.roi_pool = RoIPool((cfg.POOLING_SIZE, cfg.POOLING_SIZE), 1.0 / 16.0)
         self.cls_score = nn.Linear(2048, num_classes)
@@ -130,7 +144,7 @@ class Network(nn.Module):
 
         Reference: https://github.com/ShuangLI59/person_search/issues/87
         """
-        for p in self.backbone.SpatialConvolution_0.parameters():
+        for p in self.backbone[0].parameters():
             p.requires_grad = False
 
         def set_bn_fix(m):

@@ -27,11 +27,6 @@ def parse_args():
         "--epoch", default=5, type=int, help="Number of epochs to train. Default: 5"
     )
     parser.add_argument(
-        "--weights",
-        help="Initialize with pretrained model weights. "
-        + "Default: $ROOT/data/pretrained_model/resnet50_caffe.pth",
-    )
-    parser.add_argument(
         "--checkpoint", help="Initialize with previous solver state. Default: None",
     )
     parser.add_argument("--cfg", help="Optional config file. Default: None")
@@ -56,8 +51,6 @@ if __name__ == "__main__":
         cfg_from_file(args.cfg)
     if args.data_dir:
         cfg.DATA_DIR = osp.abspath(args.data_dir)
-    if args.weights is None and args.checkpoint is None:
-        args.weights = osp.join(cfg.DATA_DIR, "pretrained_model", "resnet50_caffe.pth")
 
     init_logger("train.log")
     logging.info("Called with args:\n" + str(args))
@@ -83,12 +76,7 @@ if __name__ == "__main__":
     dataloader = DataLoader(dataset, batch_size=1, sampler=PSSampler(dataset))
     logging.info("Loaded dataset: %s" % args.dataset)
 
-    # Initialize model
     net = Network()
-    if args.weights:
-        state_dict = torch.load(args.weights)
-        net.load_state_dict({k: v for k, v in state_dict.items() if k in net.state_dict()})
-        logging.info("Loaded pretrained model from: %s" % args.weights)
 
     # Initialize optimizer
     lr = cfg.TRAIN.LEARNING_RATE
