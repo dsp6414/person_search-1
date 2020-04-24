@@ -55,7 +55,7 @@ def unpickle(file_path):
 
 def init_logger(file_name, level="INFO"):
     """
-    Initialize the colored logger and save the log to a file.
+    Initialize colored logger and save the log to a file.
     """
     log_dir = osp.join(cfg.DATA_DIR, "logs")
     if not os.path.exists(log_dir):

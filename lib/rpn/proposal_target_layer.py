@@ -72,8 +72,6 @@ class ProposalTargetLayer(nn.Module):
         if bg_inds.numel() > 0:
             bg_inds = torch_rand_choice(bg_inds, num_bg)
 
-        # assert num_fg + num_bg == batch_size
-
         keep = torch.cat((fg_inds, bg_inds))
         cls_labels = cls_labels[keep]
         pid_labels = pid_labels[keep]

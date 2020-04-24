@@ -19,8 +19,10 @@ cfg.TRAIN.LEARNING_RATE = 0.001
 cfg.TRAIN.WEIGHT_DECAY = 0.0005
 # Momentum
 cfg.TRAIN.MOMENTUM = 0.9
-# Iterations between snapshots
-cfg.TRAIN.SNAPSHOT_ITERS = 10000
+# Max iterations
+cfg.TRAIN.MAX_ITER = 50000
+# Iterations between checkpoints
+cfg.TRAIN.CHECKPOINT_ITERS = 10000
 # Images to use per minibatch
 cfg.TRAIN.IMS_PER_BATCH = 1
 # Minibatch size (number of regions of interest [RoIs])
@@ -36,9 +38,7 @@ cfg.TRAIN.BG_THRESH_LO = 0.0
 cfg.TRAIN.USE_FLIPPED = True
 # Deprecated (inside weights)
 cfg.TRAIN.BBOX_INSIDE_WEIGHTS = (1.0, 1.0, 1.0, 1.0)
-# Normalize the targets using "precomputed" (or made up) means and stdevs
-# (BBOX_NORMALIZE_TARGETS must also be True)
-# cfg.TRAIN.BBOX_NORMALIZE_TARGETS_PRECOMPUTED = False
+# Normalize the targets using precomputed (or made up) means and stdevs
 cfg.TRAIN.BBOX_NORMALIZE_MEANS = (0.0, 0.0, 0.0, 0.0)
 cfg.TRAIN.BBOX_NORMALIZE_STDS = (0.1, 0.1, 0.2, 0.2)
 # Make minibatches from images that have similar aspect ratios (i.e. both tall and
@@ -86,22 +86,20 @@ cfg.TEST.RPN_MIN_SIZE = 16
 #  MISC  #
 ##########
 
-# The scale to be used during training, which is the pixel size of an image's shortest side
+# Pixel size of the shortest side of a scaled input image
 cfg.SCALE = 600
 # Max pixel size of the longest side of a scaled input image
 cfg.MAX_SIZE = 1000
-# Pixel mean values (BGR order) as a (1, 1, 3) array
-# We use the same pixel mean for all networks even though it's not exactly what
-# they were trained with
+# Pixel mean values (BGR order)
 cfg.PIXEL_MEANS = np.array([[[102.9801, 115.9465, 122.7717]]])
-# For reproducibility
-cfg.RNG_SEED = 3
+# Set seed to -1 to fully randomize everything.
+# Set seed to positive to use a fixed seed. Note that a fixed seed does not
+# guarantee fully deterministic behavior.
+cfg.RANDOM_SEED = -1
 # Root directory of project
 cfg.ROOT_DIR = osp.abspath(osp.join(osp.dirname(__file__), "..", ".."))
 # Data directory
 cfg.DATA_DIR = osp.join(cfg.ROOT_DIR, "data")
-# Default GPU device id
-cfg.GPU_ID = 0
 # Size of the pooled region after RoI pooling
 cfg.POOLING_SIZE = 14
 # Anchor scales for RPN
@@ -143,7 +141,9 @@ def merge_a_into_b(a, b):
 
 
 def cfg_from_file(filename):
-    """Load a config file and merge it into the default options."""
+    """
+    Load a config file and merge it into the default options.
+    """
     with open(filename, "r") as f:
         yaml_cfg = edict(yaml.load(f, Loader=yaml.FullLoader))
     merge_a_into_b(yaml_cfg, cfg)

@@ -16,21 +16,15 @@ from utils.utils import init_logger, pickle, unpickle
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Test the person search network.")
+    parser.add_argument("--cfg", help="Config file. Default: None")
     parser.add_argument(
-        "--gpu", default=-1, type=int, help="GPU device id to use. Default: -1, means using CPU"
+        "--gpu", default=0, type=int, help="GPU device id to use, -1 for CPU. Default: 0"
     )
     parser.add_argument("--checkpoint", help="The checkpoint to be tested. Default: None")
-    parser.add_argument("--cfg", help="Optional config file. Default: None")
-    parser.add_argument(
-        "--data_dir", help="The directory that saving experimental data. Default: $ROOT/data",
-    )
-    parser.add_argument(
-        "--dataset", default="psdb_test", help="Dataset to test on. Default: psdb_test"
-    )
     parser.add_argument(
         "--eval_only",
         action="store_true",
-        help="Evaluation with pre extracted features. Default: False",
+        help="Evaluation with pre-extracted features. Default: False",
     )
     return parser.parse_args()
 
@@ -66,19 +60,16 @@ def exfeat(net, probes):
 
 if __name__ == "__main__":
     args = parse_args()
-
-    if args.cfg:
-        cfg_from_file(args.cfg)
-    if args.checkpoint is None:
-        raise KeyError("--checkpoint option can not be empty.")
-    if args.data_dir:
-        cfg.DATA_DIR = osp.abspath(args.data_dir)
+    assert args.checkpoint, "--checkpoint option can not be empty."
 
     init_logger("test.log")
     logging.info("Called with args:\n" + str(args))
 
-    dataset = PSDB(args.dataset)
-    logging.info("Loaded dataset: %s" % args.dataset)
+    if args.cfg:
+        cfg_from_file(args.cfg)
+
+    dataset = PSDB("psdb_test")
+    logging.info("Loaded dataset: psdb_test")
 
     net = Network()
     checkpoint = torch.load(osp.abspath(args.checkpoint))
