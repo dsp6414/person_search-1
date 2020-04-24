@@ -121,7 +121,10 @@ if __name__ == "__main__":
         optimizer.zero_grad()
         loss = 0
         for i in range(iter_size):
-            data = next(data_iter)
+            data = next(data_iter, None)
+            if not data:
+                data_iter = iter(dataloader)
+                data = next(data_iter)
             img = data[0].to(device)
             img_info = data[1][0].to(device)
             gt_boxes = data[2][0].to(device)
