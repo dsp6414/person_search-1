@@ -117,7 +117,7 @@ if __name__ == "__main__":
         logging.info("Loaded checkpoint from: %s" % args.checkpoint)
 
     # Training loop
-    for iter in range(start_iter, max_iter + 1):
+    for iter_ in range(start_iter, max_iter + 1):
         optimizer.zero_grad()
         loss = 0
         for i in range(iter_size):
@@ -139,7 +139,7 @@ if __name__ == "__main__":
         scheduler.step()
         total_loss += loss
 
-        if iter % display == 0:
+        if iter_ % display == 0:
             ave_loss = total_loss / display
             total_loss = 0
             logging.info(
@@ -150,7 +150,7 @@ if __name__ == "__main__":
                     + "--------------------------------------------------------------"
                 )
                 % (
-                    iter,
+                    iter_,
                     max_iter,
                     ave_loss,
                     time.time() - start_time,
@@ -168,13 +168,13 @@ if __name__ == "__main__":
                     "loss_bbox": loss_bbox,
                     "loss_oim": loss_oim,
                 }
-                logger.add_scalars("Train/Loss", log_info, iter)
+                logger.add_scalars("Train/Loss", log_info, iter_)
 
         # Save checkpoint
-        if iter % cfg.TRAIN.CHECKPOINT_ITERS == 0:
-            save_name = os.path.join(output_dir, "checkpoint_iter_%s.pth" % iter)
+        if iter_ % cfg.TRAIN.CHECKPOINT_ITERS == 0:
+            save_name = os.path.join(output_dir, "checkpoint_iter_%s.pth" % iter_)
             save_dict = {
-                "iteration": iter,
+                "iteration": iter_,
                 "model": net.state_dict(),
                 "optimizer": optimizer.state_dict(),
                 "scheduler": scheduler.state_dict(),
